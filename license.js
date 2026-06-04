@@ -1,4 +1,4 @@
-const showPopup = false;
+const showPopup = true;
 
 const allowedDomains = [
   "alibookshop.com",
