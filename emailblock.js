@@ -5,39 +5,25 @@
         "spam2@gmail.com"
     ];
 
-    function blockEmail(input){
+    document.addEventListener("focusout", function(e){
 
-        const email = input.value.trim().toLowerCase();
+        const target = e.target;
 
-        if(blockedEmails.includes(email)){
+        if(target.tagName === "INPUT"){
 
-            alert("এই Gmail দিয়ে Order করা যাবে না!");
+            const value = target.value.trim().toLowerCase();
 
-            input.value = "";
-            input.blur();
+            if(blockedEmails.includes(value)){
 
-            return true;
+                alert("এই Gmail দিয়ে Order করা যাবে না!");
+
+                target.value = "";
+
+                target.focus();
+            }
+
         }
 
-        return false;
-    }
-
-    setInterval(function(){
-
-        const emailInputs = document.querySelectorAll('input[type="email"]');
-
-        emailInputs.forEach(function(input){
-
-            input.onchange = function(){
-                blockEmail(this);
-            };
-
-            input.onblur = function(){
-                blockEmail(this);
-            };
-
-        });
-
-    }, 1000);
+    });
 
 })();
