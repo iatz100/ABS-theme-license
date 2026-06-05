@@ -1,13 +1,17 @@
-(function(){
+(function () {
 
+  // Blocked Gmail List
   const blockedEmails = [
-    "rubelour@gmail.com"
+    "robelour@gmail.com",
+    "rubelour@gmail.com",
+    "bdveo3@gmail.com"
   ];
 
-  function showBlockedPopup(){
+  // Popup Function
+  function showBlockedPopup() {
 
     // Already Open
-    if(document.getElementById("email-block-popup")) return;
+    if (document.getElementById("email-block-popup")) return;
 
     // Disable Scroll
     document.body.style.overflow = "hidden";
@@ -32,7 +36,7 @@
       </p>
 
       <button id="closeEmailPopup">
-      OK
+        OK
       </button>
 
     </div>
@@ -56,7 +60,7 @@
         inset:0;
         background:rgba(0,0,0,.55);
         backdrop-filter:blur(8px);
-        animation:fadeIn .3s ease;
+        animation:fadeIn .4s ease;
       }
 
       .email-popup-box{
@@ -218,34 +222,30 @@
   }
 
   // Guaranteed Detection
-  setInterval(function(){
+  document.addEventListener("input", function(e){
 
-    const inputs = document.querySelectorAll("input");
+    const target = e.target;
 
-    inputs.forEach(function(input){
+    // All Inputs Detect
+    if(target.tagName === "INPUT"){
 
-      if(input.dataset.emailBlocked) return;
+      const value = target.value
+      .trim()
+      .toLowerCase();
 
-      input.dataset.emailBlocked = "true";
+      // Match Blocked Email
+      if(blockedEmails.includes(value)){
 
-      input.addEventListener("input", function(){
+        // Clear Input
+        target.value = "";
 
-        const value = this.value
-        .trim()
-        .toLowerCase();
+        // Show Popup
+        showBlockedPopup();
 
-        if(blockedEmails.includes(value)){
+      }
 
-          this.value = "";
+    }
 
-          showBlockedPopup();
-
-        }
-
-      });
-
-    });
-
-  }, 1000);
+  });
 
 })();
