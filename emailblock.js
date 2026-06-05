@@ -13,16 +13,16 @@
     async function loadBlockedList() {
         try {
             const res = await fetch(JSON_URL + '?v=' + Date.now(), { cache: 'no-store' });
-            if (!res.ok) throw new Error('HTTP error');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
             if (data && Array.isArray(data.emails)) {
                 blockedList = data.emails.map(e => e.toLowerCase());
-                console.log('[Email Blocker] Loaded:', blockedList);
+                console.log('[Email Blocker] Loaded:', blockedList.length, 'emails');
             } else {
-                throw new Error('Invalid JSON');
+                throw new Error('Invalid JSON format');
             }
         } catch(e) {
-            console.error('[Email Blocker] Error:', e);
+            console.error('[Email Blocker] Fetch error:', e);
             blockedList = [];
         }
     }
@@ -33,10 +33,19 @@
         return blockedList.includes(email.toLowerCase());
     }
 
-    // পপআপ দেখানোর ফাংশন (একদম সিম্পল)
+    // HTML Escape (সঠিকভাবে)
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+    // পপআপ দেখানোর ফাংশন
     function showPopup(email) {
         let pop = document.getElementById('abs-email-blocker');
-        if(pop) pop.remove();
+        if (pop) pop.remove();
 
         pop = document.createElement('div');
         pop.id = 'abs-email-blocker';
@@ -47,61 +56,55 @@
                     <h3>Email Blocked!</h3>
                     <p><strong style="color:red;">${escapeHtml(email)}</strong></p>
                     <p>এই ইমেইল দিয়ে অর্ডার করা যাবে না।</p>
-                    <button onclick="this.closest('#abs-email-blocker').remove()" style="background:red;border:none;padding:10px 25px;border-radius:25px;color:#fff;cursor:pointer;">ঠিক আছে</button>
+                    <button onclick="this.closest('#abs-email-blocker').remove()" style="background:#ef4444;border:none;padding:10px 25px;border-radius:25px;color:#fff;font-weight:bold;cursor:pointer;margin-top:10px;">ঠিক আছে</button>
                 </div>
             </div>
         `;
         document.body.appendChild(pop);
     }
 
-    // সঠিকভাবে HTML escape করার ফাংশন
-    function escapeHtml(s) {
-        if(!s) return '';
-        return s.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-
-    // ইভেন্ট লিসেনার
-    function setup() {
-        // 1. ইনপুট টাইপ করার সময় চেক
+    // ইভেন্ট লিসেনার সেটআপ
+    function setupListeners() {
+        // ইনপুট টাইপ করার সময় চেক
         document.addEventListener('input', function(e) {
-            let t = e.target;
-            if (t && (t.type === 'email' || (t.name && t.name.toLowerCase().includes('email')) || (t.id && t.id.toLowerCase().includes('email')))) {
-                if (t.value && t.value.includes('@') && isBlocked(t.value)) {
+            const t = e.target;
+            const isEmailField = (t.type === 'email') || 
+                                (t.name && t.name.toLowerCase().includes('email')) ||
+                                (t.id && t.id.toLowerCase().includes('email'));
+            
+            if (isEmailField && t.value && t.value.includes('@')) {
+                if (isBlocked(t.value)) {
                     t.value = '';
                     showPopup(t.value);
                 }
             }
         });
 
-        // 2. ফর্ম সাবমিটের সময় চেক (সবচেয়ে জরুরি)
+        // ফর্ম সাবমিটের সময় চেক (সবচেয়ে জরুরি)
         document.addEventListener('submit', function(e) {
-            let form = e.target;
-            let emailFields = form.querySelectorAll('input[type="email"], input[name*="email" i], input[id*="email" i]');
-            for(let f of emailFields) {
-                if(f.value && isBlocked(f.value)) {
+            const form = e.target;
+            const emailFields = form.querySelectorAll('input[type="email"], input[name*="email" i]');
+            
+            for (let field of emailFields) {
+                if (field.value && isBlocked(field.value)) {
                     e.preventDefault();
                     e.stopPropagation();
-                    showPopup(f.value);
-                    f.value = '';
-                    f.focus();
+                    showPopup(field.value);
+                    field.value = '';
+                    field.focus();
                     return false;
                 }
             }
         }, true);
-        
-        // 3. চেকআউট বাটনে ক্লিক চেক (সুবিধার্থে)
+
+        // চেকআউট বাটনে ক্লিক চেক (অতিরিক্ত নিরাপত্তা)
         document.addEventListener('click', function(e) {
-            let btn = e.target.closest('.contact-form-button-submit, #submit-order-btn, button[type="submit"], input[type="submit"]');
+            const btn = e.target.closest('.contact-form-button-submit, #submit-order-btn, button[type="submit"], input[type="submit"]');
             if (btn) {
                 setTimeout(() => {
-                    let form = btn.closest('form');
+                    const form = btn.closest('form');
                     if (form) {
-                        let emailField = form.querySelector('input[type="email"], input[name*="email" i]');
+                        const emailField = form.querySelector('input[type="email"], input[name*="email" i]');
                         if (emailField && emailField.value && isBlocked(emailField.value)) {
                             e.preventDefault();
                             showPopup(emailField.value);
@@ -114,8 +117,12 @@
         }, true);
     }
 
-    // সব কিছু শুরু করুন
+    // ইনিশিয়ালাইজ
     await loadBlockedList();
-    setup();
+    setupListeners();
+    
+    // প্রতি 5 মিনিট পর লিস্ট আপডেট
     setInterval(loadBlockedList, 5 * 60 * 1000);
+    
+    console.log('[Email Blocker] Active and running');
 })();
