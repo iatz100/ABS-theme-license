@@ -1,7 +1,7 @@
 (function(){
 
     const blockedEmails = [
-        "spam1@gmail.com",
+        "rubelour@gmail.com",
         "spam2@gmail.com"
     ];
 
