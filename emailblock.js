@@ -1,26 +1,23 @@
 document.addEventListener("DOMContentLoaded", function(){
 
-    const form = document.getElementById("orderForm");
+    const blockedEmails = [
+        "spam1@gmail.com",
+        "spam2@gmail.com"
+    ];
 
-    form.addEventListener("submit", function(e){
+    document.addEventListener("input", function(e){
 
-        const blockedEmails = [
-            "spam1@gmail.com",
-            "spam2@gmail.com"
-        ];
+        if(e.target.type === "email"){
 
-        const userEmail = document
-            .getElementById("email")
-            .value
-            .trim()
-            .toLowerCase();
+            const email = e.target.value.trim().toLowerCase();
 
-        if(blockedEmails.includes(userEmail)){
+            if(blockedEmails.includes(email)){
 
-            e.preventDefault();
+                alert("এই Gmail ব্লক করা আছে!");
 
-            alert("এই Email ব্লক করা আছে!");
-            return false;
+                e.target.value = "";
+            }
+
         }
 
     });
