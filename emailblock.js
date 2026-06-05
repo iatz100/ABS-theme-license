@@ -1,16 +1,18 @@
 (function(){
 
   const blockedEmails = [
-    "rubelour@gmail.com",
-    "spam2@gmail.com"
+    "rubelour@gmail.com"
   ];
 
-  function showPopup(){
+  function showBlockedPopup(){
 
+    // Already Open
     if(document.getElementById("email-block-popup")) return;
 
+    // Disable Scroll
     document.body.style.overflow = "hidden";
 
+    // Create Popup
     const popup = document.createElement("div");
 
     popup.id = "email-block-popup";
@@ -54,14 +56,14 @@
         inset:0;
         background:rgba(0,0,0,.55);
         backdrop-filter:blur(8px);
-        animation:fadeIn .4s ease;
+        animation:fadeIn .3s ease;
       }
 
       .email-popup-box{
         position:relative;
         width:100%;
         max-width:360px;
-        background:rgba(15,23,42,.94);
+        background:rgba(15,23,42,.96);
         border-radius:30px;
         padding:34px 24px;
         text-align:center;
@@ -74,7 +76,7 @@
 
         backdrop-filter:blur(18px);
 
-        animation:popupShow .4s ease;
+        animation:popupShow .35s ease;
       }
 
       .email-popup-box::before{
@@ -108,7 +110,7 @@
       .email-popup-icon{
         font-size:58px;
         margin-bottom:16px;
-        animation:pulse 1.6s infinite;
+        animation:pulse 1.5s infinite;
       }
 
       .email-popup-box h2{
@@ -128,18 +130,27 @@
       #closeEmailPopup{
         display:inline-block;
         padding:12px 28px;
+        border:none;
         border-radius:14px;
         background:linear-gradient(135deg,#2563eb,#7c3aed);
         color:#fff;
-        border:none;
         font-size:14px;
         font-weight:700;
         cursor:pointer;
+        transition:.3s;
+      }
+
+      #closeEmailPopup:hover{
+        transform:scale(1.05);
       }
 
       @keyframes borderRun{
-        0%{background-position:0% 50%;}
-        100%{background-position:200% 50%;}
+        0%{
+          background-position:0% 50%;
+        }
+        100%{
+          background-position:200% 50%;
+        }
       }
 
       @keyframes popupShow{
@@ -154,14 +165,37 @@
       }
 
       @keyframes fadeIn{
-        from{opacity:0;}
-        to{opacity:1;}
+        from{
+          opacity:0;
+        }
+        to{
+          opacity:1;
+        }
       }
 
       @keyframes pulse{
-        0%{transform:scale(1);}
-        50%{transform:scale(1.08);}
-        100%{transform:scale(1);}
+        0%{
+          transform:scale(1);
+        }
+        50%{
+          transform:scale(1.08);
+        }
+        100%{
+          transform:scale(1);
+        }
+      }
+
+      @media(max-width:600px){
+
+        .email-popup-box{
+          max-width:320px;
+          padding:30px 20px;
+        }
+
+        .email-popup-box h2{
+          font-size:23px;
+        }
+
       }
 
     </style>
@@ -170,6 +204,7 @@
 
     document.body.appendChild(popup);
 
+    // Close Button
     document
     .getElementById("closeEmailPopup")
     .onclick = function(){
@@ -182,26 +217,35 @@
 
   }
 
-  document.addEventListener("focusout", function(e){
+  // Guaranteed Detection
+  setInterval(function(){
 
-    const target = e.target;
+    const inputs = document.querySelectorAll("input");
 
-    if(target.tagName === "INPUT"){
+    inputs.forEach(function(input){
 
-      const value = target.value
-      .trim()
-      .toLowerCase();
+      if(input.dataset.emailBlocked) return;
 
-      if(blockedEmails.includes(value)){
+      input.dataset.emailBlocked = "true";
 
-        target.value = "";
+      input.addEventListener("input", function(){
 
-        setTimeout(showPopup,100);
+        const value = this.value
+        .trim()
+        .toLowerCase();
 
-      }
+        if(blockedEmails.includes(value)){
 
-    }
+          this.value = "";
 
-  });
+          showBlockedPopup();
+
+        }
+
+      });
+
+    });
+
+  }, 1000);
 
 })();
