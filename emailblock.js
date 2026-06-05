@@ -1,27 +1,30 @@
-(function () {
+(function(){
 
-  const blockedEmails = [
-    "spam1@gmail.com",
-    "rubelour@gmail.com",
-    "bdveo3@gmail.com"
-  ];
+    const blockedEmails = [
+        "spam1@gmail.com",
+        "rubelour@gmail.com",
+        "spam2@gmail.com"
+    ];
 
-  document.addEventListener("input", function(e){
+    document.addEventListener("focusout", function(e){
 
-    const value = e.target.value
-      ?.toLowerCase()
-      .trim();
+        const target = e.target;
 
-    if(blockedEmails.includes(value)){
+        if(target.tagName === "INPUT"){
 
-      // Input Clear
-      e.target.value = "";
+            const value = target.value.trim().toLowerCase();
 
-      // Popup
-      alert("এই Gmail দিয়ে Order করা যাবে না!");
+            if(blockedEmails.includes(value)){
 
-    }
+                alert("এই Gmail দিয়ে Order করা যাবে না!");
 
-  });
+                target.value = "";
+
+                target.focus();
+            }
+
+        }
+
+    });
 
 })();
