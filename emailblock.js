@@ -1,54 +1,29 @@
-(function () {
+(function(){
 
-  const blockedEmails = [
-    "robelour@gmail.com",
-    "rubelour@gmail.com",
-    "bdveo3@gmail.com"
-  ];
+    const blockedEmails = [
+        "spam1@gmail.com",
+        "spam2@gmail.com"
+    ];
 
-  let popupShown = false;
+    document.addEventListener("focusout", function(e){
 
-  function showPopup() {
+        const target = e.target;
 
-    if (popupShown) return;
+        if(target.tagName === "INPUT"){
 
-    popupShown = true;
+            const value = target.value.trim().toLowerCase();
 
-    alert("এই Gmail দিয়ে Order করা যাবে না!");
+            if(blockedEmails.includes(value)){
 
-    setTimeout(() => {
-      popupShown = false;
-    }, 2000);
+                alert("এই Gmail দিয়ে Order করা যাবে না!");
 
-  }
+                target.value = "";
 
-  setInterval(() => {
+                target.focus();
+            }
 
-    const inputs = document.querySelectorAll("input, textarea");
-
-    inputs.forEach(input => {
-
-      const value = String(input.value || "")
-        .toLowerCase()
-        .trim();
-
-      if (blockedEmails.includes(value)) {
-
-        // Remove Email
-        input.value = "";
-
-        // Trigger React/Vue Update
-        input.dispatchEvent(
-          new Event("input", { bubbles: true })
-        );
-
-        // Popup
-        showPopup();
-
-      }
+        }
 
     });
-
-  }, 300);
 
 })();
