@@ -1,25 +1,38 @@
-document.addEventListener("DOMContentLoaded", function(){
+(function(){
 
+    // Blocked Gmail List
     const blockedEmails = [
         "spam1@gmail.com",
         "spam2@gmail.com"
     ];
 
-    document.addEventListener("input", function(e){
+    // Only Run On Your Website
+    if(location.hostname.includes("alibookshop.com")){
 
-        if(e.target.type === "email"){
+        document.addEventListener("submit", function(e){
 
-            const email = e.target.value.trim().toLowerCase();
+            const emailInput = document.querySelector('input[type="email"]');
 
-            if(blockedEmails.includes(email)){
+            if(!emailInput) return;
 
-                alert("এই Gmail ব্লক করা আছে!");
+            const userEmail = emailInput.value
+                .trim()
+                .toLowerCase();
 
-                e.target.value = "";
+            if(blockedEmails.includes(userEmail)){
+
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                alert("এই Gmail দিয়ে Order করা যাবে না!");
+
+                emailInput.focus();
+
+                return false;
             }
 
-        }
+        }, true);
 
-    });
+    }
 
-});
+})();
