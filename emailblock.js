@@ -1,16 +1,13 @@
 (function () {
 
-  // Blocked Gmail List
   const blockedEmails = [
     "robelour@gmail.com",
     "rubelour@gmail.com",
     "bdveo3@gmail.com"
   ];
 
-  // Popup Function
   function showBlockedPopup() {
 
-    // Prevent Multiple Popup
     if (document.getElementById("email-block-popup")) return;
 
     const popup = document.createElement("div");
@@ -67,38 +64,6 @@
         text-align:center;
         overflow:hidden;
         z-index:2;
-
-        box-shadow:
-        0 15px 45px rgba(0,0,0,.45),
-        inset 0 0 10px rgba(255,255,255,.03);
-      }
-
-      .email-popup-box::before{
-        content:"";
-        position:absolute;
-        inset:0;
-        padding:2px;
-        border-radius:30px;
-
-        background:linear-gradient(
-          90deg,
-          #2563eb,
-          #7c3aed,
-          #06b6d4,
-          #2563eb
-        );
-
-        background-size:300% 300%;
-        animation:borderRun 4s linear infinite;
-
-        -webkit-mask:
-          linear-gradient(#fff 0 0) content-box,
-          linear-gradient(#fff 0 0);
-
-        -webkit-mask-composite:xor;
-        mask-composite:exclude;
-
-        pointer-events:none;
       }
 
       .email-popup-icon{
@@ -129,18 +94,12 @@
         cursor:pointer;
       }
 
-      @keyframes borderRun{
-        0%{background-position:0% 50%;}
-        100%{background-position:200% 50%;}
-      }
-
     </style>
 
     `;
 
     document.body.appendChild(popup);
 
-    // Close Popup
     document
     .getElementById("closeEmailPopup")
     .onclick = function () {
@@ -151,33 +110,29 @@
 
   }
 
-  // Detect ALL Typing
   document.addEventListener("input", function (e) {
 
     const target = e.target;
 
-    // Only Input Fields
     if (
       target.tagName === "INPUT" ||
       target.tagName === "TEXTAREA"
     ) {
 
-      const value = target.value
-        .trim()
-        .toLowerCase();
+      let value = target.value
+        .toLowerCase()
+        .replace(/\s/g,"")
+        .trim();
 
-      // If Blocked Email Match
-      if (blockedEmails.includes(value)) {
+      // Includes Match
+      const blocked = blockedEmails.some(email =>
+        value.includes(email)
+      );
 
-        // Clear Input
+      if (blocked) {
+
         target.value = "";
 
-        // Trigger Input Update
-        target.dispatchEvent(
-          new Event("input", { bubbles: true })
-        );
-
-        // Show Popup
         showBlockedPopup();
 
       }
