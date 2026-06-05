@@ -10,13 +10,9 @@
   // Popup Function
   function showBlockedPopup() {
 
-    // Already Open
+    // Prevent Multiple Popup
     if (document.getElementById("email-block-popup")) return;
 
-    // Disable Scroll
-    document.body.style.overflow = "hidden";
-
-    // Create Popup
     const popup = document.createElement("div");
 
     popup.id = "email-block-popup";
@@ -52,7 +48,6 @@
         z-index:999999999;
         font-family:sans-serif;
         padding:20px;
-        box-sizing:border-box;
       }
 
       .email-popup-overlay{
@@ -60,7 +55,6 @@
         inset:0;
         background:rgba(0,0,0,.55);
         backdrop-filter:blur(8px);
-        animation:fadeIn .4s ease;
       }
 
       .email-popup-box{
@@ -77,10 +71,6 @@
         box-shadow:
         0 15px 45px rgba(0,0,0,.45),
         inset 0 0 10px rgba(255,255,255,.03);
-
-        backdrop-filter:blur(18px);
-
-        animation:popupShow .35s ease;
       }
 
       .email-popup-box::before{
@@ -114,92 +104,34 @@
       .email-popup-icon{
         font-size:58px;
         margin-bottom:16px;
-        animation:pulse 1.5s infinite;
       }
 
       .email-popup-box h2{
         color:#fff;
         font-size:26px;
         margin:0 0 14px;
-        font-weight:700;
       }
 
       .email-popup-box p{
         color:#d1d5db;
         font-size:14px;
-        line-height:1.9;
+        line-height:1.8;
         margin-bottom:26px;
       }
 
       #closeEmailPopup{
-        display:inline-block;
         padding:12px 28px;
         border:none;
         border-radius:14px;
         background:linear-gradient(135deg,#2563eb,#7c3aed);
         color:#fff;
-        font-size:14px;
         font-weight:700;
         cursor:pointer;
-        transition:.3s;
-      }
-
-      #closeEmailPopup:hover{
-        transform:scale(1.05);
       }
 
       @keyframes borderRun{
-        0%{
-          background-position:0% 50%;
-        }
-        100%{
-          background-position:200% 50%;
-        }
-      }
-
-      @keyframes popupShow{
-        from{
-          opacity:0;
-          transform:scale(.9);
-        }
-        to{
-          opacity:1;
-          transform:scale(1);
-        }
-      }
-
-      @keyframes fadeIn{
-        from{
-          opacity:0;
-        }
-        to{
-          opacity:1;
-        }
-      }
-
-      @keyframes pulse{
-        0%{
-          transform:scale(1);
-        }
-        50%{
-          transform:scale(1.08);
-        }
-        100%{
-          transform:scale(1);
-        }
-      }
-
-      @media(max-width:600px){
-
-        .email-popup-box{
-          max-width:320px;
-          padding:30px 20px;
-        }
-
-        .email-popup-box h2{
-          font-size:23px;
-        }
-
+        0%{background-position:0% 50%;}
+        100%{background-position:200% 50%;}
       }
 
     </style>
@@ -208,36 +140,42 @@
 
     document.body.appendChild(popup);
 
-    // Close Button
+    // Close Popup
     document
     .getElementById("closeEmailPopup")
-    .onclick = function(){
+    .onclick = function () {
 
       popup.remove();
-
-      document.body.style.overflow = "";
 
     };
 
   }
 
-  // Guaranteed Detection
-  document.addEventListener("input", function(e){
+  // Detect ALL Typing
+  document.addEventListener("input", function (e) {
 
     const target = e.target;
 
-    // All Inputs Detect
-    if(target.tagName === "INPUT"){
+    // Only Input Fields
+    if (
+      target.tagName === "INPUT" ||
+      target.tagName === "TEXTAREA"
+    ) {
 
       const value = target.value
-      .trim()
-      .toLowerCase();
+        .trim()
+        .toLowerCase();
 
-      // Match Blocked Email
-      if(blockedEmails.includes(value)){
+      // If Blocked Email Match
+      if (blockedEmails.includes(value)) {
 
         // Clear Input
         target.value = "";
+
+        // Trigger Input Update
+        target.dispatchEvent(
+          new Event("input", { bubbles: true })
+        );
 
         // Show Popup
         showBlockedPopup();
@@ -246,6 +184,6 @@
 
     }
 
-  });
+  }, true);
 
 })();
