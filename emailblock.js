@@ -1,90 +1,97 @@
 //==========================================================
 // Email Blocker - Ali Book Shop
 //==========================================================
-(async function() {
+(function() {
     'use strict';
 
-    // আপনার GitHub JSON ফাইলের Raw URL
     const JSON_URL = 'https://raw.githubusercontent.com/iatz100/ABS-theme-license/main/blocked-emails.json';
+    let blockedEmails = [];
 
-    let blockedList = [];
-
-    // JSON ফেচ করুন
-    async function loadBlockedList() {
+    // ফেচ ব্লকড ইমেইল
+    async function fetchBlockedEmails() {
         try {
-            const res = await fetch(JSON_URL + '?v=' + Date.now(), { cache: 'no-store' });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const res = await fetch(JSON_URL + '?t=' + Date.now());
             const data = await res.json();
             if (data && Array.isArray(data.emails)) {
-                blockedList = data.emails.map(e => e.toLowerCase());
-                console.log('[Email Blocker] Loaded:', blockedList.length, 'emails');
-            } else {
-                throw new Error('Invalid JSON format');
+                blockedEmails = data.emails.map(e => e.toLowerCase());
+                console.log('[EmailBlocker] Loaded:', blockedEmails);
             }
         } catch(e) {
-            console.error('[Email Blocker] Fetch error:', e);
-            blockedList = [];
+            console.error('[EmailBlocker] Error:', e);
         }
     }
 
-    // চেক ফাংশন
+    // ইমেইল চেক
     function isBlocked(email) {
         if (!email) return false;
-        return blockedList.includes(email.toLowerCase());
+        return blockedEmails.includes(email.toLowerCase());
     }
 
     // HTML Escape (সঠিকভাবে)
     function escapeHtml(str) {
         if (!str) return '';
-        return str
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
     }
 
-    // পপআপ দেখানোর ফাংশন
+    // পপআপ দেখানো
     function showPopup(email) {
-        let pop = document.getElementById('abs-email-blocker');
-        if (pop) pop.remove();
+        let existing = document.getElementById('emailBlockerPopup');
+        if (existing) existing.remove();
 
-        pop = document.createElement('div');
-        pop.id = 'abs-email-blocker';
-        pop.innerHTML = `
+        let popup = document.createElement('div');
+        popup.id = 'emailBlockerPopup';
+        popup.innerHTML = `
             <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999999;display:flex;justify-content:center;align-items:center;">
-                <div style="background:#fff;padding:30px;border-radius:20px;text-align:center;max-width:350px;margin:20px;">
-                    <div style="font-size:60px;">⛔</div>
-                    <h3>Email Blocked!</h3>
-                    <p><strong style="color:red;">${escapeHtml(email)}</strong></p>
+                <div style="background:white;padding:25px;border-radius:16px;text-align:center;max-width:350px;margin:20px;">
+                    <div style="font-size:50px;">🚫</div>
+                    <h3 style="margin:10px 0;">Email Blocked!</h3>
+                    <p><strong style="color:#e74c3c;word-break:break-all;">${escapeHtml(email)}</strong></p>
                     <p>এই ইমেইল দিয়ে অর্ডার করা যাবে না।</p>
-                    <button onclick="this.closest('#abs-email-blocker').remove()" style="background:#ef4444;border:none;padding:10px 25px;border-radius:25px;color:#fff;font-weight:bold;cursor:pointer;margin-top:10px;">ঠিক আছে</button>
+                    <button onclick="document.getElementById('emailBlockerPopup').remove()" style="background:#e74c3c;border:none;padding:10px 25px;border-radius:25px;color:white;font-weight:bold;cursor:pointer;margin-top:10px;">ঠিক আছে</button>
                 </div>
             </div>
         `;
-        document.body.appendChild(pop);
+        document.body.appendChild(popup);
     }
 
-    // ইভেন্ট লিসেনার সেটআপ
-    function setupListeners() {
-        // ইনপুট টাইপ করার সময় চেক
-        document.addEventListener('input', function(e) {
-            const t = e.target;
-            const isEmailField = (t.type === 'email') || 
-                                (t.name && t.name.toLowerCase().includes('email')) ||
-                                (t.id && t.id.toLowerCase().includes('email'));
-            
-            if (isEmailField && t.value && t.value.includes('@')) {
-                if (isBlocked(t.value)) {
-                    t.value = '';
-                    showPopup(t.value);
+    // সব ইমেইল ফিল্ডে লিসেনার যোগ করা
+    function addEmailListeners() {
+        // সব ইনপুট ফিল্ডে ইভেন্ট (dynamic ফিল্ডের জন্যও)
+        document.body.addEventListener('blur', function(e) {
+            let target = e.target;
+            if (target.type === 'email' || 
+                (target.name && target.name.toLowerCase().includes('email')) ||
+                (target.id && target.id.toLowerCase().includes('email'))) {
+                let email = target.value;
+                if (email && email.includes('@') && isBlocked(email)) {
+                    target.value = '';
+                    showPopup(email);
+                }
+            }
+        }, true);
+
+        document.body.addEventListener('input', function(e) {
+            let target = e.target;
+            if (target.type === 'email' || 
+                (target.name && target.name.toLowerCase().includes('email')) ||
+                (target.id && target.id.toLowerCase().includes('email'))) {
+                let email = target.value;
+                if (email && email.includes('@') && isBlocked(email)) {
+                    target.value = '';
+                    showPopup(email);
                 }
             }
         });
 
-        // ফর্ম সাবমিটের সময় চেক (সবচেয়ে জরুরি)
-        document.addEventListener('submit', function(e) {
-            const form = e.target;
-            const emailFields = form.querySelectorAll('input[type="email"], input[name*="email" i]');
-            
+        // ফর্ম সাবমিট ব্লক
+        document.body.addEventListener('submit', function(e) {
+            let form = e.target;
+            let emailFields = form.querySelectorAll('input[type="email"], input[name*="email" i], input[id*="email" i]');
             for (let field of emailFields) {
                 if (field.value && isBlocked(field.value)) {
                     e.preventDefault();
@@ -96,33 +103,10 @@
                 }
             }
         }, true);
-
-        // চেকআউট বাটনে ক্লিক চেক (অতিরিক্ত নিরাপত্তা)
-        document.addEventListener('click', function(e) {
-            const btn = e.target.closest('.contact-form-button-submit, #submit-order-btn, button[type="submit"], input[type="submit"]');
-            if (btn) {
-                setTimeout(() => {
-                    const form = btn.closest('form');
-                    if (form) {
-                        const emailField = form.querySelector('input[type="email"], input[name*="email" i]');
-                        if (emailField && emailField.value && isBlocked(emailField.value)) {
-                            e.preventDefault();
-                            showPopup(emailField.value);
-                            emailField.value = '';
-                            emailField.focus();
-                        }
-                    }
-                }, 50);
-            }
-        }, true);
     }
 
-    // ইনিশিয়ালাইজ
-    await loadBlockedList();
-    setupListeners();
-    
-    // প্রতি 5 মিনিট পর লিস্ট আপডেট
-    setInterval(loadBlockedList, 5 * 60 * 1000);
-    
-    console.log('[Email Blocker] Active and running');
+    // শুরু করুন
+    fetchBlockedEmails();
+    addEmailListeners();
+    setInterval(fetchBlockedEmails, 5 * 60 * 1000);
 })();
