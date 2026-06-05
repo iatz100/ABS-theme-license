@@ -1,38 +1,43 @@
 (function(){
 
-    // Blocked Gmail List
     const blockedEmails = [
         "spam1@gmail.com",
         "spam2@gmail.com"
     ];
 
-    // Only Run On Your Website
-    if(location.hostname.includes("alibookshop.com")){
+    function blockEmail(input){
 
-        document.addEventListener("submit", function(e){
+        const email = input.value.trim().toLowerCase();
 
-            const emailInput = document.querySelector('input[type="email"]');
+        if(blockedEmails.includes(email)){
 
-            if(!emailInput) return;
+            alert("এই Gmail দিয়ে Order করা যাবে না!");
 
-            const userEmail = emailInput.value
-                .trim()
-                .toLowerCase();
+            input.value = "";
+            input.blur();
 
-            if(blockedEmails.includes(userEmail)){
+            return true;
+        }
 
-                e.preventDefault();
-                e.stopImmediatePropagation();
-
-                alert("এই Gmail দিয়ে Order করা যাবে না!");
-
-                emailInput.focus();
-
-                return false;
-            }
-
-        }, true);
-
+        return false;
     }
+
+    setInterval(function(){
+
+        const emailInputs = document.querySelectorAll('input[type="email"]');
+
+        emailInputs.forEach(function(input){
+
+            input.onchange = function(){
+                blockEmail(this);
+            };
+
+            input.onblur = function(){
+                blockEmail(this);
+            };
+
+        });
+
+    }, 1000);
 
 })();
