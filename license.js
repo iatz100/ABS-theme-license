@@ -38,6 +38,17 @@ if (showPopup && !document.getElementById("abs-maintenance-popup")) {
 
     </a>
 
+    <a href="https://wa.me/8801763967230" target="_blank" class="abs-whatsapp-btn">
+
+  <svg viewBox="0 0 32 32" fill="currentColor">
+    <path d="M19.11 17.24c-.3-.15-1.76-.87-2.03-.97-.27-.1-.46-.15-.66.15-.2.3-.76.97-.93 1.17-.17.2-.34.22-.64.07-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.49-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.34.44-.51.15-.17.2-.3.3-.49.1-.2.05-.37-.02-.52-.07-.15-.66-1.6-.9-2.2-.24-.57-.48-.49-.66-.5h-.56c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.46 0 1.45 1.07 2.86 1.22 3.06.15.2 2.09 3.19 5.06 4.47.71.31 1.26.49 1.69.63.71.23 1.35.2 1.86.12.57-.08 1.76-.72 2.01-1.42.25-.69.25-1.28.17-1.42-.08-.13-.28-.2-.58-.35z"/>
+    <path d="M16.01 3C8.83 3 3 8.82 3 16c0 2.54.74 5.01 2.14 7.13L3 29l5.99-2.09A13 13 0 1 0 16.01 3zm0 23.61c-2.17 0-4.3-.58-6.15-1.67l-.44-.26-3.56 1.24 1.19-3.47-.29-.45A10.58 10.58 0 1 1 16.01 26.61z"/>
+  </svg>
+
+  WhatsApp
+
+</a>
+
   </div>
 
   <style>
@@ -233,7 +244,38 @@ if (showPopup && !document.getElementById("abs-maintenance-popup")) {
       }
 
     }
+.abs-whatsapp-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
 
+  margin:12px auto 0;
+  padding:12px 22px;
+
+  background:#25D366;
+  color:#fff;
+  text-decoration:none;
+  font-size:15px;
+  font-weight:700;
+
+  border-radius:12px;
+
+  transition:.25s;
+
+  box-shadow:0 8px 18px rgba(37,211,102,.35);
+}
+
+.abs-whatsapp-btn:hover{
+  background:#1ebe5d;
+  transform:translateY(-2px);
+}
+
+.abs-whatsapp-btn svg{
+  width:18px;
+  height:18px;
+  flex-shrink:0;
+}
   </style>
 
   `;
