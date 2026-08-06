@@ -1,4 +1,3 @@
-
 const showPopup = false;  
   
 const allowedDomains = [  
@@ -223,8 +222,11 @@ if (showPopup && !isAllowed) {
     </style>  
   
     `;  
+  
     document.body.appendChild(popup);  
   
   }  
   
 }  
+  
+  
