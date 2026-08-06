@@ -1,6 +1,5 @@
 const showPopup = false;
 
-// আপনার Facebook Page URL দিন
 const facebookPage = "https://www.facebook.com/alibookshopbd";
 
 if (showPopup && !document.getElementById("abs-maintenance-popup")) {
