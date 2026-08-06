@@ -223,7 +223,6 @@ if (showPopup && !isAllowed) {
     </style>  
   
     `;  
-  
     document.body.appendChild(popup);  
   
   }  
