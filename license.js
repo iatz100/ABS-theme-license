@@ -1,4 +1,4 @@
-const showPopup = true;
+const showPopup = false;
 
 // আপনার Facebook Page URL দিন
 const facebookPage = "https://www.facebook.com/alibookshopbd";
